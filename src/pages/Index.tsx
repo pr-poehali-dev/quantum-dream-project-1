@@ -1,378 +1,762 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Icon from "@/components/ui/icon";
 
-const Index = () => {
-  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({});
+// ─── DATA ───────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const observers: Record<string, IntersectionObserver> = {};
-    const sectionIds = ["hero", "features", "how", "pricing", "cta"];
+const TESTS = [
+  {
+    id: "logic",
+    title: "Логическое мышление",
+    emoji: "🧠",
+    questions: [
+      {
+        text: "Вам дают сложную задачу без инструкций. Вы...",
+        options: ["Разбиваю на шаги и решаю методично", "Ищу похожие решения в интернете", "Прошу кого-то помочь", "Действую интуитивно"],
+      },
+      {
+        text: "Вы видите паттерн: 2, 4, 8, 16... Что дальше?",
+        options: ["32 — удвоение", "18 — прибавляю 2", "20 — прибавляю 4", "Не знаю"],
+      },
+      {
+        text: "Насколько вам нравится работать с цифрами и формулами?",
+        options: ["Очень нравится", "Скорее нравится", "Нейтрально", "Не нравится"],
+      },
+      {
+        text: "Вы любите головоломки и логические задачи?",
+        options: ["Обожаю, это моё хобби", "Да, когда есть время", "Иногда", "Нет, предпочитаю другое"],
+      },
+      {
+        text: "Как вы принимаете решения?",
+        options: ["Анализирую данные и факты", "Взвешиваю за и против", "Доверяю интуиции", "Советуюсь с другими"],
+      },
+    ],
+  },
+  {
+    id: "humtech",
+    title: "Гуманитарий или технарь",
+    emoji: "⚖️",
+    questions: [
+      {
+        text: "Что вам больше нравится читать?",
+        options: ["Научные статьи и техническую литературу", "Художественные книги и поэзию", "Исторические факты и биографии", "Ничего из перечисленного"],
+      },
+      {
+        text: "Какой предмет в школе был любимым?",
+        options: ["Математика или физика", "Литература или история", "Биология или химия", "Физкультура или технология"],
+      },
+      {
+        text: "Вы пишете текст — что важнее?",
+        options: ["Точность и структура", "Красота и образность", "Смысл и идея", "Краткость"],
+      },
+      {
+        text: "Как вы лучше запоминаете информацию?",
+        options: ["Через схемы и графики", "Через истории и образы", "Через повторение вслух", "Через практику и действие"],
+      },
+      {
+        text: "Что привлекает больше — создать программу или написать рассказ?",
+        options: ["Программу", "Рассказ", "Оба варианта интересны", "Ни то ни другое"],
+      },
+    ],
+  },
+  {
+    id: "social",
+    title: "Коммуникабельность",
+    emoji: "🤝",
+    questions: [
+      {
+        text: "После общения с людьми вы чувствуете себя...",
+        options: ["Наполненным энергией", "Нейтрально", "Немного уставшим", "Очень уставшим"],
+      },
+      {
+        text: "В команде вы обычно...",
+        options: ["Берёте на себя лидерство", "Активно участвуете", "Выполняете свою часть тихо", "Предпочитаете работать один"],
+      },
+      {
+        text: "Насколько легко вам знакомиться с новыми людьми?",
+        options: ["Очень легко, я открытый человек", "Достаточно легко", "С трудом, но справляюсь", "Это стресс для меня"],
+      },
+      {
+        text: "Вы любите выступать перед аудиторией?",
+        options: ["Да, мне нравится", "Нормально отношусь", "Волнуюсь, но делаю", "Избегаю этого"],
+      },
+      {
+        text: "Работа с людьми или с данными — что ближе?",
+        options: ["Работа с людьми", "Работа с данными", "Одинаково", "Зависит от настроения"],
+      },
+    ],
+  },
+  {
+    id: "creative",
+    title: "Креативность",
+    emoji: "🎨",
+    questions: [
+      {
+        text: "Вам нравится придумывать что-то новое с нуля?",
+        options: ["Да, это моя стихия", "Да, когда есть вдохновение", "Иногда", "Предпочитаю работать по шаблону"],
+      },
+      {
+        text: "Вы занимаетесь творчеством (рисование, музыка, видео)?",
+        options: ["Регулярно, это хобби", "Иногда для удовольствия", "Очень редко", "Не занимаюсь"],
+      },
+      {
+        text: "Если бы вы делали сайт, вы бы...",
+        options: ["Сами нарисовали дизайн", "Выбрали готовый шаблон и настроили", "Поручили дизайнеру", "Взяли любой, главное чтобы работал"],
+      },
+      {
+        text: "Вам важна эстетика в окружении (интерьер, одежда)?",
+        options: ["Очень важна", "Важна, но не приоритет", "Нейтрально", "Совсем не важна"],
+      },
+      {
+        text: "Придумать идею или реализовать её — что интереснее?",
+        options: ["Придумать идею", "Реализовать", "Оба этапа одинаково", "Ни то ни другое"],
+      },
+    ],
+  },
+  {
+    id: "workstyle",
+    title: "Формат работы",
+    emoji: "💼",
+    questions: [
+      {
+        text: "Где вам комфортнее работать?",
+        options: ["В офисе с командой", "Удалённо из дома", "Гибридно", "В поездках и на выезде"],
+      },
+      {
+        text: "Вы предпочитаете работу с...",
+        options: ["Людьми и коммуникацией", "Данными и аналитикой", "Технологиями и кодом", "Творческими задачами"],
+      },
+      {
+        text: "Какой ритм работы вам ближе?",
+        options: ["Стабильный, с чётким расписанием", "Разнообразный, без рутины", "Проектный, от задачи к задаче", "Свободный, сам планирую"],
+      },
+      {
+        text: "Важна ли вам высокая зарплата как основной приоритет?",
+        options: ["Да, это главное", "Важна, но не единственное", "Важнее интерес и смысл", "Всё равно, лишь бы нравилось"],
+      },
+      {
+        text: "Вы хотите...",
+        options: ["Помогать людям напрямую", "Создавать продукты и технологии", "Управлять и организовывать", "Исследовать и анализировать"],
+      },
+    ],
+  },
+];
 
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id);
-      if (!element) return;
+const PROFESSIONS = [
+  {
+    id: "developer",
+    title: "Разработчик",
+    short: "Создание приложений, сайтов и цифровых продуктов",
+    emoji: "💻",
+    gradient: "gradient-card-blue",
+    description: "Разработчик программного обеспечения проектирует, создаёт и поддерживает программы, веб-сайты и мобильные приложения. Это одна из самых востребованных профессий 21 века.",
+    skills: ["Алгоритмическое мышление", "Знание языков программирования", "Работа с базами данных", "Командная работа по Agile/Scrum"],
+    salary: "от 80 000 до 400 000 ₽/мес",
+    prospects: "Высокий спрос, удалённая работа, международные компании",
+    tags: ["logic", "humtech"],
+    universities: [
+      { name: "МФТИ", city: "Москва", program: "Прикладная математика и информатика", url: "https://mipt.ru/education/departments/fpmi/" },
+      { name: "НИУ ВШЭ", city: "Москва", program: "Программная инженерия", url: "https://www.hse.ru/ba/se/" },
+      { name: "СПбГУ", city: "Санкт-Петербург", program: "Программирование и информационные технологии", url: "https://spbu.ru/postupayushchim/programs/bachelor/programmirovanie-i-informacionnye-tekhnologii" },
+      { name: "ИТМО", city: "Санкт-Петербург", program: "Информационные системы и технологии", url: "https://itmo.ru/ru/faculty/24/informatizaciya_i_programmirovanie.htm" },
+    ],
+  },
+  {
+    id: "designer",
+    title: "Графический дизайнер",
+    short: "Визуальные концепции, брендинг и интерфейсы",
+    emoji: "🎨",
+    gradient: "gradient-card-peach",
+    description: "Графический дизайнер создаёт визуальные образы для брендов, продуктов и медиа. Работает с логотипами, упаковкой, рекламой, интерфейсами приложений и сайтов.",
+    skills: ["Чувство эстетики и стиля", "Adobe Photoshop / Illustrator / Figma", "Типографика и композиция", "Понимание маркетинга"],
+    salary: "от 50 000 до 250 000 ₽/мес",
+    prospects: "Фриланс, агентства, IT-компании, стартапы",
+    tags: ["creative", "workstyle"],
+    universities: [
+      { name: "Британская школа дизайна", city: "Москва", program: "Графический дизайн", url: "https://britishdesign.ru/courses/graphic_design/" },
+      { name: "НИУ ВШЭ", city: "Москва", program: "Коммуникационный дизайн", url: "https://www.hse.ru/ba/design/" },
+      { name: "СПбГУПТД", city: "Санкт-Петербург", program: "Дизайн", url: "https://sutd.ru/abiturientam/programmy-bakalavriata/dizayn/" },
+      { name: "МГХПА им. Строганова", city: "Москва", program: "Дизайн среды", url: "https://stroganovka.ru/" },
+    ],
+  },
+  {
+    id: "marketer",
+    title: "Маркетолог",
+    short: "Продвижение продуктов, аналитика и стратегия",
+    emoji: "📈",
+    gradient: "gradient-card-green",
+    description: "Маркетолог отвечает за продвижение товаров и услуг, изучение рынка и потребителей, разработку стратегий роста бизнеса. Работает на стыке творчества и аналитики.",
+    skills: ["Анализ данных", "Понимание психологии потребителя", "Digital-маркетинг и SMM", "Написание текстов и сторителлинг"],
+    salary: "от 60 000 до 300 000 ₽/мес",
+    prospects: "Рост в digital, продуктовый маркетинг, международные бренды",
+    tags: ["social", "creative"],
+    universities: [
+      { name: "НИУ ВШЭ", city: "Москва", program: "Маркетинг и рыночная аналитика", url: "https://www.hse.ru/ba/marketing/" },
+      { name: "РЭУ им. Плеханова", city: "Москва", program: "Маркетинг", url: "https://www.rea.ru/ru/org/faculties/fmeo/Pages/marketing.aspx" },
+      { name: "СПБГЭУ", city: "Санкт-Петербург", program: "Маркетинг", url: "https://unecon.ru/napravleniya-podgotovki/bakalavriat/marketing" },
+      { name: "МГУ", city: "Москва", program: "Маркетинг (факультет экономики)", url: "https://www.econ.msu.ru/students/bachelor/market/" },
+    ],
+  },
+  {
+    id: "analyst",
+    title: "Аналитик данных",
+    short: "Исследование данных, прогнозы, бизнес-инсайты",
+    emoji: "📊",
+    gradient: "gradient-card-purple",
+    description: "Data Analyst собирает, обрабатывает и анализирует большие массивы данных, строит дашборды и помогает бизнесу принимать обоснованные решения на основе цифр.",
+    skills: ["SQL и базы данных", "Python / R для анализа", "Визуализация данных (Tableau, Power BI)", "Статистика и математика"],
+    salary: "от 70 000 до 350 000 ₽/мес",
+    prospects: "Высокий спрос, работа в любой индустрии, удалёнка",
+    tags: ["logic", "humtech"],
+    universities: [
+      { name: "МФТИ", city: "Москва", program: "Науки о данных", url: "https://mipt.ru/education/departments/fpmi/" },
+      { name: "НИУ ВШЭ", city: "Москва", program: "Прикладная математика и информатика", url: "https://www.hse.ru/ba/ami/" },
+      { name: "НГТУ", city: "Новосибирск", program: "Информатика и вычислительная техника", url: "https://www.nstu.ru/study/bachelor/informatics/" },
+      { name: "УрФУ", city: "Екатеринбург", program: "Прикладная математика", url: "https://urfu.ru/ru/applicants/programs/bachelor/applied-mathematics/" },
+    ],
+  },
+  {
+    id: "psychologist",
+    title: "Психолог",
+    short: "Помощь людям, консультирование, исследования",
+    emoji: "🧩",
+    gradient: "gradient-card-rose",
+    description: "Психолог изучает поведение и психику человека, оказывает психологическую помощь, занимается диагностикой и консультированием в клиниках, школах, бизнесе и частной практике.",
+    skills: ["Эмпатия и активное слушание", "Методы психодиагностики", "Знание психологических теорий", "Ведение документации"],
+    salary: "от 40 000 до 200 000 ₽/мес",
+    prospects: "Частная практика, корпоративный психолог, HR-специалист",
+    tags: ["social", "workstyle"],
+    universities: [
+      { name: "МГУ им. Ломоносова", city: "Москва", program: "Психология", url: "https://www.psy.msu.ru/" },
+      { name: "НИУ ВШЭ", city: "Москва", program: "Психология", url: "https://www.hse.ru/ba/psy/" },
+      { name: "СПбГУ", city: "Санкт-Петербург", program: "Психология", url: "https://spbu.ru/postupayushchim/programs/bachelor/psihologiya" },
+      { name: "РГПУ им. Герцена", city: "Санкт-Петербург", program: "Психология образования", url: "https://www.herzen.spb.ru/" },
+    ],
+  },
+];
 
-      observers[id] = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setVisibleSections((prev) => ({ ...prev, [id]: true }));
-            observers[id].unobserve(element);
-          }
-        },
-        { threshold: 0.15 }
-      );
+// ─── ALGORITHM ───────────────────────────────────────────────────────────────
 
-      observers[id].observe(element);
+type Answers = Record<string, number[]>;
+
+function calcResults(answers: Answers): typeof PROFESSIONS {
+  const scores: Record<string, number> = {};
+  PROFESSIONS.forEach((p) => { scores[p.id] = 0; });
+
+  Object.entries(answers).forEach(([testId, testAnswers]) => {
+    testAnswers.forEach((answerIdx, qIdx) => {
+      const value = answerIdx === 0 ? 3 : answerIdx === 1 ? 2 : answerIdx === 2 ? 1 : 0;
+      PROFESSIONS.forEach((p) => {
+        if (p.tags.includes(testId)) scores[p.id] += value;
+      });
+      if (testId === "workstyle" && qIdx === 1) {
+        if (answerIdx === 0) { scores["psychologist"] += 3; scores["marketer"] += 2; }
+        if (answerIdx === 1) { scores["analyst"] += 3; }
+        if (answerIdx === 2) { scores["developer"] += 3; }
+        if (answerIdx === 3) { scores["designer"] += 3; }
+      }
+      if (testId === "social" && answerIdx === 0) { scores["psychologist"] += 2; scores["marketer"] += 2; }
+      if (testId === "logic" && answerIdx === 0) { scores["developer"] += 2; scores["analyst"] += 2; }
+      if (testId === "creative" && answerIdx === 0) { scores["designer"] += 2; scores["marketer"] += 1; }
+      if (testId === "humtech") {
+        if (answerIdx === 0) { scores["developer"] += 2; scores["analyst"] += 2; }
+        if (answerIdx === 1) { scores["psychologist"] += 2; scores["designer"] += 1; }
+      }
     });
+  });
 
-    return () => {
-      Object.values(observers).forEach((observer) => observer.disconnect());
-    };
-  }, []);
+  return [...PROFESSIONS].sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0)).slice(0, 4);
+}
+
+// ─── TYPES ────────────────────────────────────────────────────────────────────
+
+type Screen = "hero" | "testing" | "results" | "profession";
+
+// ─── FLOATING PROFESSION CARDS (hero illustration) ────────────────────────────
+
+const profCards = [
+  { label: "Разработчик", emoji: "💻", grad: "gradient-card-blue", anim: "animate-float-up" },
+  { label: "Дизайнер", emoji: "🎨", grad: "gradient-card-peach", anim: "animate-float-down" },
+  { label: "Маркетолог", emoji: "📈", grad: "gradient-card-green", anim: "animate-float-slow" },
+  { label: "Аналитик", emoji: "📊", grad: "gradient-card-purple", anim: "animate-float-up" },
+  { label: "Психолог", emoji: "🧩", grad: "gradient-card-rose", anim: "animate-float-down" },
+];
+
+// ─── HERO SCREEN ─────────────────────────────────────────────────────────────
+
+function HeroScreen({ onStart }: { onStart: (name: string, city: string, target: string) => void }) {
+  const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  const [target, setTarget] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleSubmit = () => {
+    if (!name.trim()) { setError(true); return; }
+    setError(false);
+    onStart(name.trim(), city.trim(), target.trim());
+  };
+
+  const positions = [
+    "top-4 left-20",
+    "top-16 right-4",
+    "top-1/2 left-4 -translate-y-1/2",
+    "bottom-20 left-28",
+    "bottom-4 right-16",
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 w-full bg-background/80 backdrop-blur-2xl border-b border-accent/20 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
-          <div className="font-display font-bold text-2xl tracking-tighter bg-gradient-to-r from-white via-accent to-accent/80 bg-clip-text text-transparent">
-            AgentForge
+    <div className="min-h-screen gradient-hero flex flex-col">
+      <header className="px-6 py-5 flex justify-between items-center max-w-7xl mx-auto w-full">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center">
+            <Icon name="Compass" size={18} className="text-white" />
           </div>
-          <nav className="hidden md:flex gap-10 text-sm font-medium">
-            <a href="#features" className="text-muted-foreground hover:text-white transition-colors">Возможности</a>
-            <a href="#how" className="text-muted-foreground hover:text-white transition-colors">Как это работает</a>
-            <a href="#pricing" className="text-muted-foreground hover:text-white transition-colors">Тарифы</a>
-          </nav>
-          <div className="flex gap-3">
-            <button className="px-5 py-2.5 text-sm font-medium border border-accent/40 rounded-full hover:border-accent/70 hover:bg-accent/10 transition-all text-white">
-              Войти
-            </button>
-            <button className="px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-accent via-accent to-accent/80 text-black rounded-full hover:shadow-lg hover:shadow-accent/40 transition-all font-semibold">
-              Попробовать
-            </button>
-          </div>
+          <span className="font-bold text-lg text-slate-800">Профориентация</span>
+        </div>
+        <div className="hidden sm:flex items-center gap-2 text-sm text-slate-500">
+          <Icon name="Clock" size={14} />
+          <span>~15 минут</span>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section id="hero" className="relative pt-32 pb-32 px-6 min-h-screen flex items-center overflow-hidden">
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden">
-          <img src="/images/black-hole-gif.gif" alt="Анимация" className="w-auto h-3/4 object-contain opacity-80" />
-        </div>
-        <div className="absolute inset-0 bg-black/65" />
+      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 grid lg:grid-cols-2 gap-12 items-center w-full">
+        <div className="animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full shadow-soft text-xs font-medium text-indigo-600 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            Бесплатно · Без регистрации
+          </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto w-full">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className={`transition-all duration-1000 ${visibleSections["hero"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-              <div className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/30 bg-accent/10">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs font-medium tracking-widest text-accent uppercase">AI-платформа нового поколения</span>
-              </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-black leading-tight text-slate-800 mb-5 tracking-tight">
+            Тест на
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500"> профориентацию:</span>
+            {" "}какая профессия вам подходит?
+          </h1>
 
-              <h1 className="text-6xl lg:text-7xl font-display font-black leading-tight mb-8 tracking-tighter">
-                <span className="bg-gradient-to-br from-white via-white to-accent/40 bg-clip-text text-transparent">
-                  Создавай. Запускай.
-                </span>
-                <br />
-                <span className="text-accent">Автоматизируй.</span>
-              </h1>
+          <p className="text-lg text-slate-500 mb-10 leading-relaxed max-w-xl">
+            Пройдите серию тестов и получите персональные рекомендации по выбору профессии и вузов.
+          </p>
 
-              <p className="text-xl text-white/75 leading-relaxed mb-10 max-w-xl font-light">
-                AgentForge — платформа для создания и запуска умных AI-агентов. От идеи до продакшена за минуты, а не месяцы.
-              </p>
-
-              <div className="flex gap-4 mb-12 flex-col sm:flex-row">
-                <button className="group px-8 py-4 bg-gradient-to-r from-accent to-accent/90 text-black rounded-full hover:shadow-2xl hover:shadow-accent/50 transition-all font-bold text-lg flex items-center gap-3 justify-center">
-                  Запустить сейчас
-                  <Icon name="ArrowRight" size={20} className="group-hover:translate-x-1 transition" />
-                </button>
-                <button className="group px-8 py-4 border border-white/20 rounded-full hover:border-accent/50 hover:bg-accent/5 transition-all font-medium text-lg text-white flex items-center gap-3 justify-center">
-                  <Icon name="Play" size={18} className="text-accent" />
-                  Смотреть демо
-                </button>
-              </div>
-
-              <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
-                <div>
-                  <div className="text-2xl font-bold text-accent mb-1">10 000+</div>
-                  <p className="text-sm text-white/50">Активных агентов</p>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-white mb-1">500K+</div>
-                  <p className="text-sm text-white/50">Выполненных задач</p>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-accent mb-1">99.99%</div>
-                  <p className="text-sm text-white/50">Аптайм</p>
-                </div>
-              </div>
+          <div className="bg-white rounded-2xl shadow-card p-6 space-y-4 max-w-md">
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1.5 block">Ваше имя *</label>
+              <input
+                value={name}
+                onChange={(e) => { setName(e.target.value); setError(false); }}
+                placeholder="Например: Алиса"
+                className={`w-full px-4 py-3 rounded-xl border text-slate-800 placeholder:text-slate-400 outline-none transition-all ${
+                  error ? "border-red-400 bg-red-50" : "border-slate-200 bg-slate-50 focus:border-indigo-400 focus:bg-white"
+                }`}
+              />
+              {error && <p className="text-red-500 text-xs mt-1">Пожалуйста, введите ваше имя</p>}
             </div>
 
-            <div className={`relative h-96 lg:h-[550px] transition-all duration-1000 flex items-center justify-center ${visibleSections["hero"] ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/30 via-transparent to-transparent rounded-3xl blur-3xl animate-pulse" />
-              <img
-                src="/omnius-logo.png"
-                alt="AgentForge"
-                className="w-full max-w-sm lg:max-w-md drop-shadow-2xl animate-float relative z-10"
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1.5 block">Город</label>
+              <input
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Москва"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:border-indigo-400 focus:bg-white text-slate-800 placeholder:text-slate-400 outline-none transition-all"
               />
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-32 px-6 bg-accent/5">
-        <div className="max-w-7xl mx-auto">
-          <div className={`text-center mb-20 transition-all duration-1000 ${visibleSections["features"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <span className="text-xs font-medium tracking-widest text-accent/60 uppercase">Возможности</span>
-            <h2 className="text-5xl lg:text-6xl font-display font-black tracking-tighter mt-4 mb-6">
-              <span className="bg-gradient-to-r from-white via-white to-accent/40 bg-clip-text text-transparent">
-                Суперсилы встроены
-              </span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Всё необходимое для запуска AI-агентов в продакшен — уже внутри
-            </p>
-          </div>
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1.5 block">Где планируете поступать</label>
+              <select
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:border-indigo-400 focus:bg-white text-slate-800 outline-none transition-all"
+              >
+                <option value="">Выберите вариант</option>
+                <option value="moscow">Москва</option>
+                <option value="spb">Санкт-Петербург</option>
+                <option value="regional">В своём регионе</option>
+                <option value="online">Онлайн-образование</option>
+                <option value="abroad">За рубежом</option>
+              </select>
+            </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: "Zap",
-                title: "Молниеносный деплой",
-                desc: "Развертывание в продакшен одним кликом — без DevOps и сложных настроек.",
-              },
-              {
-                icon: "Brain",
-                title: "Умный AI-движок",
-                desc: "Агенты обучаются на ваших данных и адаптируются к любым сценариям.",
-              },
-              {
-                icon: "TrendingUp",
-                title: "Автомасштабирование",
-                desc: "Платформа сама масштабирует ресурсы под нагрузку — от 1 до миллиона запросов.",
-              },
-              {
-                icon: "ShieldCheck",
-                title: "Корпоративная безопасность",
-                desc: "Банковское шифрование данных и полное соответствие GDPR и SOC2.",
-              },
-              {
-                icon: "Workflow",
-                title: "Визуальный конструктор",
-                desc: "Создавайте сложные цепочки автоматизации без единой строки кода.",
-              },
-              {
-                icon: "Globe",
-                title: "Мультиоблачность",
-                desc: "Разворачивайте на AWS, Azure, GCP или собственной инфраструктуре.",
-              },
-            ].map((item, i) => {
-              const isVisible = visibleSections["features"];
-              return (
-                <div
-                  key={i}
-                  className={`group p-8 border border-accent/10 hover:border-accent/40 rounded-2xl bg-card/50 hover:bg-card/80 transition-all duration-500 cursor-pointer backdrop-blur-sm ${
-                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                  }`}
-                  style={{ transitionDelay: `${i * 100}ms` }}
-                >
-                  <div className="w-12 h-12 rounded-xl bg-accent/15 flex items-center justify-center mb-6 group-hover:bg-accent/25 transition-colors">
-                    <Icon name={item.icon} size={22} className="text-accent group-hover:scale-110 transition-transform" />
-                  </div>
-                  <h3 className="font-display font-bold text-xl mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how" className="py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className={`text-center mb-20 transition-all duration-1000 ${visibleSections["how"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <span className="text-xs font-medium tracking-widest text-accent/60 uppercase">Процесс</span>
-            <h2 className="text-5xl lg:text-6xl font-display font-black tracking-tighter mt-4">
-              <span className="bg-gradient-to-r from-white via-white to-accent/40 bg-clip-text text-transparent">
-                От идеи до запуска
-              </span>
-            </h2>
-            <p className="text-lg text-muted-foreground mt-6 max-w-xl mx-auto">
-              4 шага, которые превращают задачу в работающего агента
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { num: "01", title: "Проектируй", desc: "Опишите задачу агента в интуитивном конструкторе — без кода" },
-              { num: "02", title: "Обучай", desc: "Загрузите данные и примеры для точной настройки поведения" },
-              { num: "03", title: "Запускай", desc: "Деплой в продакшен одним кликом за секунды" },
-              { num: "04", title: "Масштабируй", desc: "Автоматическое масштабирование под любую нагрузку" },
-            ].map((step, i) => {
-              const isVisible = visibleSections["how"];
-              return (
-                <div
-                  key={i}
-                  className={`relative transition-all duration-700 ${
-                    isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                  }`}
-                  style={{ transitionDelay: `${i * 150}ms` }}
-                >
-                  <div className="group bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/40 rounded-2xl p-8 h-full flex flex-col justify-between transition-all backdrop-blur-sm cursor-pointer">
-                    <div>
-                      <div className="text-5xl font-display font-black text-accent mb-4 group-hover:scale-110 transition-transform origin-left">
-                        {step.num}
-                      </div>
-                      <h3 className="font-display font-bold text-xl mb-2">{step.title}</h3>
-                      <p className="text-muted-foreground leading-relaxed">{step.desc}</p>
-                    </div>
-                  </div>
-                  {i < 3 && (
-                    <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-0.5 bg-gradient-to-r from-accent/40 to-transparent" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="py-32 px-6 bg-accent/5">
-        <div className="max-w-5xl mx-auto">
-          <div className={`text-center mb-20 transition-all duration-1000 ${visibleSections["pricing"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <span className="text-xs font-medium tracking-widest text-accent/60 uppercase">Тарифы</span>
-            <h2 className="text-5xl lg:text-6xl font-display font-black tracking-tighter mt-4">
-              <span className="bg-gradient-to-r from-white via-white to-accent/40 bg-clip-text text-transparent">
-                Простые цены
-              </span>
-            </h2>
-            <p className="text-lg text-muted-foreground mt-6">Начните бесплатно, масштабируйте по мере роста</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              {
-                name: "Стартовый",
-                price: "4 900 ₽/мес",
-                desc: "Для команд, которые только начинают",
-                features: [
-                  "До 10 активных агентов",
-                  "100 000 запросов/месяц",
-                  "Поддержка сообщества",
-                  "Базовая аналитика",
-                  "Визуальный конструктор"
-                ],
-                highlight: false,
-                cta: "Попробовать бесплатно",
-              },
-              {
-                name: "Корпоративный",
-                price: "По запросу",
-                desc: "Для бизнеса без ограничений",
-                features: [
-                  "Безлимитные агенты",
-                  "Безлимитные запросы",
-                  "Поддержка 24/7",
-                  "Индивидуальные интеграции",
-                  "SLA и выделенный менеджер"
-                ],
-                highlight: true,
-                cta: "Связаться с нами",
-              },
-            ].map((plan, i) => {
-              const isVisible = visibleSections["pricing"];
-              return (
-                <div
-                  key={i}
-                  className={`group relative transition-all duration-700 ${
-                    isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
-                  } ${plan.highlight ? "md:scale-105" : ""}`}
-                  style={{ transitionDelay: `${i * 200}ms` }}
-                >
-                  {plan.highlight && (
-                    <div className="absolute -inset-1 bg-gradient-to-r from-accent via-accent to-accent/60 rounded-3xl opacity-20 blur-xl group-hover:opacity-30 transition" />
-                  )}
-                  <div className={`relative p-10 border rounded-2xl h-full flex flex-col justify-between backdrop-blur-sm transition-all ${
-                    plan.highlight ? "border-accent/40 bg-accent/10" : "border-accent/10 bg-card/50 hover:bg-card/80"
-                  }`}>
-                    {plan.highlight && (
-                      <div className="absolute top-6 right-6">
-                        <span className="px-3 py-1 bg-accent text-black text-xs font-bold rounded-full uppercase tracking-wide">Популярный</span>
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-display font-bold text-2xl mb-1">{plan.name}</h3>
-                      <p className="text-muted-foreground text-sm mb-6">{plan.desc}</p>
-                      <p className="text-4xl font-black text-accent mb-8">{plan.price}</p>
-                      <ul className="space-y-4 mb-10">
-                        {plan.features.map((f, j) => (
-                          <li key={j} className="flex gap-3 text-sm items-center">
-                            <Icon name="Check" size={16} className="text-accent flex-shrink-0" />
-                            <span className="text-foreground/80">{f}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <button className={`w-full px-6 py-4 rounded-xl font-semibold transition-all ${
-                      plan.highlight
-                        ? "bg-gradient-to-r from-accent to-accent/80 text-black hover:shadow-xl hover:shadow-accent/40"
-                        : "border border-accent/20 hover:border-accent/40 hover:bg-accent/5 text-white"
-                    }`}>
-                      {plan.cta}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section id="cta" className="py-32 px-6">
-        <div className={`max-w-4xl mx-auto text-center transition-all duration-1000 ${visibleSections["cta"] ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-accent/30 bg-accent/10">
-            <Icon name="Sparkles" size={14} className="text-accent" />
-            <span className="text-xs font-medium tracking-widest text-accent uppercase">Начните уже сегодня</span>
-          </div>
-          <h2 className="text-5xl lg:text-6xl font-display font-black tracking-tighter mb-6">
-            <span className="bg-gradient-to-r from-white via-white to-accent/40 bg-clip-text text-transparent">
-              Готовы создавать будущее?
-            </span>
-          </h2>
-          <p className="text-xl text-muted-foreground mb-12 font-light max-w-2xl mx-auto">
-            Присоединяйтесь к тысячам команд, которые уже автоматизируют бизнес с AgentForge.
-          </p>
-          <div className="flex gap-4 justify-center flex-col sm:flex-row">
-            <button className="group px-10 py-5 bg-gradient-to-r from-accent to-accent/90 text-black rounded-full hover:shadow-2xl hover:shadow-accent/40 transition-all font-bold text-lg flex items-center gap-3 mx-auto sm:mx-0">
-              Начать бесплатно
-              <Icon name="ArrowRight" size={20} className="group-hover:translate-x-1 transition" />
+            <button
+              onClick={handleSubmit}
+              className="w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-indigo-200 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+            >
+              Пройти тесты
+              <Icon name="ArrowRight" size={18} />
             </button>
-            <button className="px-10 py-5 border border-white/20 rounded-full hover:border-accent/50 hover:bg-accent/5 transition-all font-medium text-lg text-white mx-auto sm:mx-0">
-              Поговорить с командой
-            </button>
-          </div>
-        </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="border-t border-accent/10 py-12 px-6 bg-background/50">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-muted-foreground">
-          <div className="font-display font-bold text-lg bg-gradient-to-r from-white via-accent to-accent/80 bg-clip-text text-transparent">
-            AgentForge
-          </div>
-          <p>© 2025 AgentForge — Умные агенты для вашего бизнеса</p>
-          <div className="flex gap-8">
-            <a href="#" className="hover:text-white transition-colors">Политика конфиденциальности</a>
-            <a href="#" className="hover:text-white transition-colors">Условия использования</a>
+            <p className="text-xs text-slate-400 text-center">5 тестов · ~15 минут · Персональный результат</p>
           </div>
         </div>
-      </footer>
+
+        {/* Floating cards illustration */}
+        <div className="hidden lg:flex items-center justify-center relative h-[500px]">
+          {profCards.map((card, i) => (
+            <div key={i} className={`absolute ${positions[i]} ${card.anim}`}>
+              <div className={`${card.grad} rounded-2xl p-4 shadow-card flex items-center gap-3 min-w-[160px]`}>
+                <span className="text-2xl">{card.emoji}</span>
+                <span className="font-bold text-slate-700 text-sm">{card.label}</span>
+              </div>
+            </div>
+          ))}
+          <div className="w-32 h-32 rounded-full bg-white shadow-card flex items-center justify-center z-10">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+              <Icon name="Compass" size={32} className="text-white" />
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <div className="max-w-7xl mx-auto px-6 pb-12 w-full">
+        <div className="grid grid-cols-3 gap-4 max-w-xs">
+          {[{ num: "5", label: "тестов" }, { num: "5", label: "профессий" }, { num: "20+", label: "вузов" }].map((s, i) => (
+            <div key={i} className="bg-white rounded-xl p-3 text-center shadow-soft">
+              <div className="text-xl font-black text-indigo-600">{s.num}</div>
+              <div className="text-xs text-slate-500">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
+}
+
+// ─── TESTING SCREEN ───────────────────────────────────────────────────────────
+
+function TestingScreen({ userName, onComplete }: { userName: string; onComplete: (answers: Answers) => void }) {
+  const [testIdx, setTestIdx] = useState(0);
+  const [questionIdx, setQuestionIdx] = useState(0);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [selected, setSelected] = useState<number | null>(null);
+  const [shakeBtn, setShakeBtn] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+
+  const currentTest = TESTS[testIdx];
+  const currentQuestion = currentTest.questions[questionIdx];
+  const totalQuestions = TESTS.reduce((s, t) => s + t.questions.length, 0);
+  const doneQuestions = TESTS.slice(0, testIdx).reduce((s, t) => s + t.questions.length, 0) + questionIdx;
+  const progress = Math.round((doneQuestions / totalQuestions) * 100);
+  const isLastQuestion = testIdx === TESTS.length - 1 && questionIdx === currentTest.questions.length - 1;
+
+  const handleNext = () => {
+    if (selected === null) {
+      setShakeBtn(true);
+      setTimeout(() => setShakeBtn(false), 500);
+      return;
+    }
+    const testAnswers = answers[currentTest.id] ?? [];
+    const newTestAnswers = [...testAnswers];
+    newTestAnswers[questionIdx] = selected;
+    const newAnswers = { ...answers, [currentTest.id]: newTestAnswers };
+    setAnswers(newAnswers);
+    setSelected(null);
+    setAnimKey((k) => k + 1);
+
+    if (questionIdx < currentTest.questions.length - 1) {
+      setQuestionIdx(questionIdx + 1);
+    } else if (testIdx < TESTS.length - 1) {
+      setTestIdx(testIdx + 1);
+      setQuestionIdx(0);
+    } else {
+      onComplete(newAnswers);
+    }
+  };
+
+  return (
+    <div className="min-h-screen gradient-hero flex flex-col">
+      <header className="px-6 py-5 flex items-center gap-3 max-w-3xl mx-auto w-full">
+        <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center">
+          <Icon name="Compass" size={18} className="text-white" />
+        </div>
+        <span className="font-bold text-slate-700">Профориентация</span>
+        <div className="ml-auto text-sm text-slate-500">{userName}</div>
+      </header>
+
+      <div className="max-w-3xl mx-auto w-full px-6 mb-8">
+        <div className="flex justify-between text-xs text-slate-500 mb-2">
+          <span>{currentTest.emoji} {currentTest.title}</span>
+          <span>{progress}%</span>
+        </div>
+        <div className="h-2 bg-white rounded-full overflow-hidden shadow-soft">
+          <div
+            className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500 rounded-full"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="flex gap-1 mt-3">
+          {TESTS.map((t, i) => (
+            <div key={t.id} className={`flex-1 h-1 rounded-full transition-all ${i < testIdx ? "bg-indigo-500" : i === testIdx ? "bg-indigo-300" : "bg-slate-200"}`} />
+          ))}
+        </div>
+      </div>
+
+      <main className="flex-1 max-w-3xl mx-auto w-full px-6 flex flex-col">
+        <div key={`${testIdx}-${questionIdx}-${animKey}`} className="animate-fade-in-up">
+          <div className="bg-white rounded-2xl shadow-card p-8 mb-6">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-3xl">{currentTest.emoji}</span>
+              <div>
+                <div className="text-xs font-medium text-indigo-500 uppercase tracking-wide">{currentTest.title}</div>
+                <div className="text-xs text-slate-400">Вопрос {questionIdx + 1} из {currentTest.questions.length}</div>
+              </div>
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-8 leading-snug">{currentQuestion.text}</h2>
+
+            <div className="space-y-3">
+              {currentQuestion.options.map((opt, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelected(i)}
+                  className={`w-full text-left px-5 py-4 rounded-xl border-2 transition-all font-medium text-sm ${
+                    selected === i
+                      ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                      : "border-slate-100 bg-slate-50 text-slate-700 hover:border-indigo-200 hover:bg-indigo-50/50"
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <span className={`w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${selected === i ? "border-indigo-500 bg-indigo-500" : "border-slate-300"}`}>
+                      {selected === i && <span className="w-2 h-2 rounded-full bg-white" />}
+                    </span>
+                    {opt}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={handleNext}
+            className={`w-full py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${shakeBtn ? "opacity-80" : ""} ${
+              selected !== null
+                ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-lg hover:shadow-indigo-200 hover:scale-[1.01]"
+                : "bg-slate-200 text-slate-400 cursor-not-allowed"
+            }`}
+          >
+            {isLastQuestion ? <>Получить результаты <Icon name="Sparkles" size={18} /></> : <>Далее <Icon name="ArrowRight" size={18} /></>}
+          </button>
+        </div>
+      </main>
+      <div className="h-12" />
+    </div>
+  );
+}
+
+// ─── RESULTS SCREEN ───────────────────────────────────────────────────────────
+
+function ResultsScreen({
+  userName,
+  results,
+  onProfessionClick,
+  onRestart,
+}: {
+  userName: string;
+  results: typeof PROFESSIONS;
+  onProfessionClick: (prof: (typeof PROFESSIONS)[0]) => void;
+  onRestart: () => void;
+}) {
+  return (
+    <div className="min-h-screen gradient-hero">
+      <header className="px-6 py-5 flex items-center gap-3 max-w-5xl mx-auto">
+        <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center">
+          <Icon name="Compass" size={18} className="text-white" />
+        </div>
+        <span className="font-bold text-slate-700">Профориентация</span>
+        <button onClick={onRestart} className="ml-auto text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 transition-colors">
+          <Icon name="RotateCcw" size={14} />
+          Пройти снова
+        </button>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-6 py-8">
+        <div className="text-center mb-12 animate-fade-in-up">
+          <div className="text-5xl mb-4">🎉</div>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-3">
+            {userName}, вот профессии,<br className="hidden sm:block" /> которые вам подходят
+          </h1>
+          <p className="text-slate-500 text-lg">На основе ваших ответов мы подобрали подходящие направления</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-6 mb-12">
+          {results.map((prof, i) => (
+            <div
+              key={prof.id}
+              onClick={() => onProfessionClick(prof)}
+              className={`animate-fade-in-up group cursor-pointer bg-white rounded-2xl shadow-card hover:shadow-xl hover:scale-[1.02] transition-all overflow-hidden`}
+              style={{ animationDelay: `${i * 0.1}s` }}
+            >
+              <div className={`${prof.gradient} h-28 flex items-center justify-center`}>
+                <span className="text-6xl">{prof.emoji}</span>
+              </div>
+              <div className="p-6">
+                {i === 0 && (
+                  <div className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold mb-3">
+                    <Icon name="Star" size={11} />
+                    Лучший результат
+                  </div>
+                )}
+                <h3 className="font-black text-xl text-slate-800 mb-2">{prof.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed mb-4">{prof.short}</p>
+                <div className="flex items-center gap-2 text-indigo-600 text-sm font-semibold group-hover:gap-3 transition-all">
+                  Узнать подробнее
+                  <Icon name="ArrowRight" size={16} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-card p-8 text-center">
+          <h2 className="text-xl font-black text-slate-800 mb-2">Хотите узнать больше?</h2>
+          <p className="text-slate-500 mb-6">Кликните на карточку — там описание, навыки и список вузов с прямыми ссылками</p>
+          <button onClick={onRestart} className="px-6 py-3 border-2 border-indigo-300 text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-all">
+            Пройти тест заново
+          </button>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// ─── PROFESSION SCREEN ────────────────────────────────────────────────────────
+
+function ProfessionScreen({ profession, onBack }: { profession: (typeof PROFESSIONS)[0]; onBack: () => void }) {
+  return (
+    <div className="min-h-screen bg-white">
+      <div className={`${profession.gradient} pt-6 pb-16 px-6`}>
+        <div className="max-w-4xl mx-auto">
+          <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors mb-8 font-medium">
+            <Icon name="ArrowLeft" size={18} />
+            Назад к результатам
+          </button>
+          <div className="flex items-center gap-6">
+            <div className="w-24 h-24 bg-white rounded-2xl shadow-card flex items-center justify-center text-5xl flex-shrink-0">
+              {profession.emoji}
+            </div>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-2">{profession.title}</h1>
+              <p className="text-slate-600 text-lg">{profession.short}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="max-w-4xl mx-auto px-6 -mt-8 pb-16">
+        <div className="bg-white rounded-2xl shadow-card p-8 mb-6 animate-fade-in-up">
+          <h2 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+            <Icon name="BookOpen" size={20} className="text-indigo-500" />
+            Чем занимается специалист
+          </h2>
+          <p className="text-slate-600 leading-relaxed">{profession.description}</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white rounded-2xl shadow-card p-8 animate-fade-in-up">
+            <h2 className="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+              <Icon name="Zap" size={20} className="text-indigo-500" />
+              Ключевые навыки
+            </h2>
+            <ul className="space-y-3">
+              {profession.skills.map((skill, i) => (
+                <li key={i} className="flex items-start gap-3 text-slate-600">
+                  <span className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon name="Check" size={12} className="text-indigo-600" />
+                  </span>
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl p-6 text-white shadow-card animate-fade-in-up">
+              <div className="text-sm font-medium text-white/70 mb-1 flex items-center gap-1">
+                <Icon name="TrendingUp" size={14} />
+                Средняя зарплата
+              </div>
+              <div className="text-xl font-black">{profession.salary}</div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-card p-6 animate-fade-in-up flex-1">
+              <div className="text-sm font-semibold text-slate-500 mb-2 flex items-center gap-1">
+                <Icon name="Rocket" size={14} className="text-indigo-500" />
+                Перспективы
+              </div>
+              <p className="text-slate-700 font-medium">{profession.prospects}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="animate-fade-in-up">
+          <h2 className="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
+            <Icon name="GraduationCap" size={24} className="text-indigo-500" />
+            Где получить образование
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {profession.universities.map((uni, i) => (
+              <div key={i} className="bg-white rounded-2xl shadow-soft border border-slate-100 p-6 hover:shadow-card hover:border-indigo-200 transition-all">
+                <div className="font-black text-slate-800 text-lg mb-1">{uni.name}</div>
+                <div className="flex items-center gap-1 text-slate-400 text-sm mb-2">
+                  <Icon name="MapPin" size={12} />
+                  {uni.city}
+                </div>
+                <div className="text-slate-600 text-sm mb-4 leading-snug">{uni.program}</div>
+                <a
+                  href={uni.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg font-semibold text-sm hover:bg-indigo-100 transition-colors"
+                >
+                  Перейти на сайт
+                  <Icon name="ExternalLink" size={14} />
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
+
+const Index = () => {
+  const [screen, setScreen] = useState<Screen>("hero");
+  const [userName, setUserName] = useState("");
+  const [results, setResults] = useState<typeof PROFESSIONS>([]);
+  const [selectedProfession, setSelectedProfession] = useState<(typeof PROFESSIONS)[0] | null>(null);
+
+  const handleStart = (name: string, city: string, target: string) => {
+    setUserName(name);
+    localStorage.setItem("profi_user", JSON.stringify({ name, city, target }));
+    setScreen("testing");
+  };
+
+  const handleTestsComplete = (answers: Answers) => {
+    const res = calcResults(answers);
+    setResults(res);
+    localStorage.setItem("profi_results", JSON.stringify(res.map((r) => r.id)));
+    setScreen("results");
+    window.scrollTo(0, 0);
+  };
+
+  const handleProfessionClick = (prof: (typeof PROFESSIONS)[0]) => {
+    setSelectedProfession(prof);
+    setScreen("profession");
+    window.scrollTo(0, 0);
+  };
+
+  const handleRestart = () => {
+    setScreen("hero");
+    setResults([]);
+    setSelectedProfession(null);
+    window.scrollTo(0, 0);
+  };
+
+  if (screen === "hero") return <HeroScreen onStart={handleStart} />;
+  if (screen === "testing") return <TestingScreen userName={userName} onComplete={handleTestsComplete} />;
+  if (screen === "results") return <ResultsScreen userName={userName} results={results} onProfessionClick={handleProfessionClick} onRestart={handleRestart} />;
+  if (screen === "profession" && selectedProfession) return <ProfessionScreen profession={selectedProfession} onBack={() => { setScreen("results"); window.scrollTo(0, 0); }} />;
+
+  return null;
 };
 
 export default Index;

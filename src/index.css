@@ -2,145 +2,194 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
 @layer base {
   :root {
-    /* Dark theme with cyan/teal accent */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 99%;
+    --foreground: 222 30% 15%;
 
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 30% 15%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 30% 15%;
 
-    --primary: 174 100% 50%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 237 60% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 240 20% 96%;
+    --secondary-foreground: 222 30% 25%;
 
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 63%;
+    --muted: 240 15% 94%;
+    --muted-foreground: 220 15% 55%;
 
-    --accent: 174 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 83 45% 82%;
+    --accent-foreground: 222 30% 15%;
 
-    --destructive: 0 100% 50%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 10%;
-    --input: 0 0% 4%;
-    --ring: 174 100% 50%;
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 237 60% 60%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 174 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 10%;
-    --sidebar-ring: 174 100% 50%;
+    /* Custom palette */
+    --green-soft: #dce9be;
+    --peach-soft: #f2e9e1;
+    --blue-soft: #dce8f5;
+    --purple-soft: #e8dff5;
+    --indigo: #6366f1;
+    --indigo-light: #818cf8;
   }
 
-  .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 100%;
-
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 174 100% 50%;
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 0 0% 25%;
-    --muted-foreground: 0 0% 63%;
-
-    --accent: 174 100% 50%;
-    --accent-foreground: 0 0% 0%;
-
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 10%;
-    --input: 0 0% 4%;
-    --ring: 174 100% 50%;
-
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 174 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 10%;
-    --sidebar-ring: 174 100% 50%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
 
   body {
     @apply bg-background text-foreground;
+    font-family: "Inter", system-ui, sans-serif;
   }
 
   html {
-    @apply dark;
     scroll-behavior: smooth;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: "Manrope", system-ui, sans-serif;
-    font-weight: 700;
   }
 }
 
 @layer utilities {
   .font-display {
-    font-family: "Manrope", system-ui, sans-serif;
-    font-weight: 700;
+    font-family: "Inter", system-ui, sans-serif;
+    font-weight: 800;
   }
 
-  @keyframes float {
+  .gradient-hero {
+    background: linear-gradient(
+      135deg,
+      #f0f4ff 0%,
+      #ede9ff 35%,
+      #f5e9ff 65%,
+      #fef0f5 100%
+    );
+  }
+
+  .gradient-card-green {
+    background: linear-gradient(135deg, #dce9be 0%, #c8e0a0 100%);
+  }
+
+  .gradient-card-peach {
+    background: linear-gradient(135deg, #f2e9e1 0%, #e8d5c4 100%);
+  }
+
+  .gradient-card-blue {
+    background: linear-gradient(135deg, #dce8f5 0%, #c0d8f0 100%);
+  }
+
+  .gradient-card-purple {
+    background: linear-gradient(135deg, #e8dff5 0%, #d4c8f0 100%);
+  }
+
+  .gradient-card-rose {
+    background: linear-gradient(135deg, #fde8f0 0%, #f5cce0 100%);
+  }
+
+  .shadow-soft {
+    box-shadow:
+      0 4px 24px rgba(99, 102, 241, 0.08),
+      0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-card {
+    box-shadow:
+      0 8px 40px rgba(99, 102, 241, 0.1),
+      0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  @keyframes float-up {
     0%,
     100% {
-      transform: translateY(0px);
+      transform: translateY(0px) rotate(0deg);
     }
-    50% {
-      transform: translateY(-20px);
+    33% {
+      transform: translateY(-8px) rotate(1deg);
+    }
+    66% {
+      transform: translateY(-4px) rotate(-1deg);
     }
   }
 
-  .animate-float {
-    animation: float 4s ease-in-out infinite;
-  }
-
-  @keyframes glow {
+  @keyframes float-down {
     0%,
     100% {
-      box-shadow: 0 0 20px rgba(0, 255, 209, 0.4);
+      transform: translateY(0px) rotate(0deg);
     }
-    50% {
-      box-shadow: 0 0 40px rgba(0, 255, 209, 0.7);
+    33% {
+      transform: translateY(8px) rotate(-1deg);
+    }
+    66% {
+      transform: translateY(4px) rotate(1deg);
     }
   }
 
-  .animate-glow {
-    animation: glow 3s ease-in-out infinite;
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-float-up {
+    animation: float-up 5s ease-in-out infinite;
+  }
+
+  .animate-float-down {
+    animation: float-down 5s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  .animate-float-slow {
+    animation: float-up 7s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.4s ease-out forwards;
+  }
+
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+  .delay-400 {
+    animation-delay: 0.4s;
+  }
+  .delay-500 {
+    animation-delay: 0.5s;
   }
 }
